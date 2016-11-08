@@ -17,9 +17,13 @@ HD_ROOT=20480
 LOCAL_MP='/tmp/pxe'
 REMOTE_MP='/pxe'
 IMAGE_DIR="$LOCAL_MP/img"
-NFSMOUNT=`/etc/init.d/nfsmount status | awk -F: '{print $2}' | sed 's/ //g'`
+
 START_TIME=0
 END_TIME=0
+
+get_nfsmount_status() {
+/etc/init.d/nfsmount status | awk -F: '{print $2}' | sed 's/ //g'
+}
 
 function pause(){
   read -p "$*"
@@ -74,7 +78,7 @@ function img_install(){
 echo "* Instalación de la imagen *"
 echo "Iniciando instalación de imagen"
 
-if [ $NFSMOUNT != 'started' ]; then
+if [ $(get_nfsmount_status) != 'started' ]; then
     echo "Servicio NFS desactivado, activando..."
     /etc/init.d/nfsmount start &> /dev/null
 fi
@@ -108,7 +112,7 @@ fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=0,dest="$HD"1 &> /dev/null
 fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=1,dest="$HD"3 &> /dev/null
 umount $IMAGE_DIR &> /dev/null
 
-if [ $NFSMOUNT = 'started' ]; then
+if [ $(get_nfsmount_status) = 'started' ]; then
     echo "Servicio NFS activado, desactivando..."
     /etc/init.d/nfsmount start &> /dev/null
 fi
