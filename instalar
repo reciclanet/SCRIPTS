@@ -10,6 +10,7 @@
 
 #A copy of the GNU General Public License is available as /usr/share/common-licenses/GPL in the Debian GNU/Linux distribution or on the World Wide Web at the GNU website You can also obtain it by writing to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
 
+REMOTE_TYPE=${REMOTE_TYPE:-'NFS'}  # NFS, CIFS
 SERVER=10.10.20.3
 HD='/dev/sda'
 HD_SWAP=4096
@@ -78,13 +79,19 @@ function img_install(){
 echo "* Instalación de la imagen *"
 echo "Iniciando instalación de imagen"
 
-if ! is_nfsmount_started; then
+if [ "$REMOTE_TYPE" = 'NFS' ] && ! is_nfsmount_started; then
     echo "Servicio NFS desactivado, activando..."
     /etc/init.d/nfsmount start &> /dev/null
 fi
 
 mkdir $LOCAL_MP
-mount -o nolock $SERVER:$REMOTE_MP $LOCAL_MP &> /dev/null
+case "$REMOTE_TYPE" in
+    (NFS) mount -t nfs -o nolock "$SERVER:$REMOTE_MP" "$LOCAL_MP" &> /dev/null
+          ;;
+    (CIFS) mount -t cifs -o ro,guest "//$SERVER/$REMOTE_MP" "$LOCAL_MP" &> /dev/null
+           ;;
+    # (*) = local
+esac
 cd $IMAGE_DIR
 IMAGES=($(ls -f ./*.fsa))
 cd - &> /dev/null
@@ -112,7 +119,7 @@ fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=0,dest="$HD"1 &> /dev/null
 fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=1,dest="$HD"3 &> /dev/null
 umount $IMAGE_DIR &> /dev/null
 
-if is_nfsmount_started; then
+if [ "$REMOTE_TYPE" = 'NFS' ] && is_nfsmount_started; then
     echo "Servicio NFS activado, desactivando..."
     /etc/init.d/nfsmount start &> /dev/null
 fi
