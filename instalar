@@ -86,11 +86,13 @@ fi
 
 mkdir $LOCAL_MP
 case "$REMOTE_TYPE" in
-    (NFS) mount -t nfs -o nolock "$SERVER:$REMOTE_MP" "$LOCAL_MP" &> /dev/null
+    (NFS) mount -t nfs -o nolock "$SERVER:$REMOTE_MP" "$LOCAL_MP" &> /dev/null \
+                && REMOTE_MOUNTED=yes
           ;;
-    (CIFS) mount -t cifs -o ro,guest "//$SERVER/$REMOTE_MP" "$LOCAL_MP" &> /dev/null
+    (CIFS) mount -t cifs -o ro,guest "//$SERVER/$REMOTE_MP" "$LOCAL_MP" &> /dev/null \
+                 && REMOTE_MOUNTED=yes
            ;;
-    # (*) = local
+    (*) REMOTE_MOUNTED=no  # local
 esac
 cd $IMAGE_DIR
 IMAGES=($(ls -f ./*.fsa))
@@ -117,7 +119,9 @@ La operación puede durar aproximadamente 5 minutos."
 
 fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=0,dest="$HD"1 &> /dev/null
 fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=1,dest="$HD"3 &> /dev/null
-umount $IMAGE_DIR &> /dev/null
+if [ $REMOTE_MOUNTED = yes ]; then
+    umount "$LOCAL_MP" &> /dev/null
+fi
 
 if [ "$REMOTE_TYPE" = 'NFS' ] && is_nfsmount_started; then
     echo "Servicio NFS activado, desactivando..."
