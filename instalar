@@ -65,9 +65,9 @@ partprobe $HD
 sleep 5
 
 echo "Formateando las nuevas particiones..."
-mkfs -t ext4 "$HD"1 &> /dev/null
+mkfs -t ext4 -F "$HD"1 &> /dev/null
 NEW_SWAP_UUID=`mkswap /dev/sda2 | grep 'UUID' | cut -d "=" -f 2`
-mkfs -t ext4 "$HD"3 &> /dev/null
+mkfs -t ext4 -F "$HD"3 &> /dev/null
 
 swapon "$HD"2 &> /dev/null
 echo "Preparación del disco duro finalizada"
