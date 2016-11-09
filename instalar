@@ -68,10 +68,8 @@ dmsetup remove_all
 partprobe $HD
 sleep 5
 
-echo "Formateando las nuevas particiones..."
-mkfs -t ext4 -F "$HD"1 &> /dev/null
+echo "Formateando la partición de swap..."
 NEW_SWAP_UUID=$(mkswap "$HD"2 2> /dev/null | get_uuid)
-mkfs -t ext4 -F "$HD"3 &> /dev/null
 
 swapon "$HD"2 &> /dev/null
 echo "Preparación del disco duro finalizada"
