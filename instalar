@@ -12,7 +12,7 @@
 
 SERVER=10.10.20.3
 HD='/dev/sda'
-HD_SWAP=${HD_SWAP:-4096}  # MiB
+HD_SWAP=${HD_SWAP:-4096}  # MiB o "AUTO"
 HD_ROOT=${HD_ROOT:-20480}  # MiB o "FILL"
 LOCAL_MP='/tmp/pxe'
 REMOTE_MP='/pxe'
@@ -44,6 +44,11 @@ echo "Limpiando MBR..."
 dd if=/dev/zero of=$HD count=1 bs=512 &> /dev/null
 
 echo 'Creando las nuevas particiones...'
+
+if [ "$HD_SWAP" = 'AUTO' ]; then
+    local mem_kb=$(sed -rn 's/^MemTotal:\s*([0-9]+) kB/\1/p' /proc/meminfo)
+    HD_SWAP=$((mem_kb / 1024 * 3 / 2))  # RAM * 1.5 (MiB)
+fi
 
 if [ "$HD_ROOT" = 'FILL' ]; then
     local hd_size_kb=$(sed -ne "s/.* \([0-9]*\) $(basename "$HD")$/\1/p" /proc/partitions)
