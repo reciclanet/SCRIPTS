@@ -25,6 +25,10 @@ function pause(){
   read -p "$*"
 }
 
+function get_uuid(){
+perl -ne 'print if s/.*?((?:[[:xdigit:]]+-){4}[[:xdigit:]]+).*/\1/'
+}
+
 function init_msg(){
 START_TIME=`date +%s`
 pause "** INSTALACIÓN AUTOMÁTICA DE SSOO **
@@ -66,7 +70,7 @@ sleep 5
 
 echo "Formateando las nuevas particiones..."
 mkfs -t ext4 -F "$HD"1 &> /dev/null
-NEW_SWAP_UUID=`mkswap /dev/sda2 | grep 'UUID' | cut -d "=" -f 2`
+NEW_SWAP_UUID=$(mkswap "$HD"2 2> /dev/null | get_uuid)
 mkfs -t ext4 -F "$HD"3 &> /dev/null
 
 swapon "$HD"2 &> /dev/null
@@ -132,7 +136,7 @@ chroot /tmp/root update-grub2 &> /dev/null
 chroot /tmp/root grub-install $HD &> /dev/null
 
 echo "Generando UUID ${HD}2 (swap)..."
-OLD_SWAP_UUID=`cat /tmp/root/etc/fstab | grep swap | grep 'UUID' | cut -d "=" -f 2 | cut -d " " -f 1`
+OLD_SWAP_UUID=$(grep swap /tmp/root/etc/fstab | get_uuid)
 sed -i "s/$OLD_SWAP_UUID/$NEW_SWAP_UUID/g" /tmp/root/etc/fstab
 
 echo "Desmontando $HD y sus particiones"
