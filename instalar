@@ -12,8 +12,8 @@
 
 SERVER=10.10.20.3
 HD='/dev/sda'
-HD_SWAP=4096
-HD_ROOT=20480
+HD_SWAP=${HD_SWAP:-4096}  # MiB
+HD_ROOT=${HD_ROOT:-20480}  # MiB o "FILL"
 LOCAL_MP='/tmp/pxe'
 REMOTE_MP='/pxe'
 IMAGE_DIR="$LOCAL_MP/img"
@@ -44,7 +44,29 @@ echo "Limpiando MBR..."
 dd if=/dev/zero of=$HD count=1 bs=512 &> /dev/null
 
 echo 'Creando las nuevas particiones...'
-echo "n
+
+if [ "$HD_ROOT" = 'FILL' ]; then
+    local hd_size_kb=$(sed -ne "s/.* \([0-9]*\) $(basename "$HD")$/\1/p" /proc/partitions)
+    local hd_size_sectors=$((hd_size_kb * 2))
+    local swap_first_sector=$((hd_size_sectors - ($HD_SWAP * 1024 * 2)))
+    echo "\
+n
+p
+2
+$swap_first_sector
+
+n
+p
+1
+
+
+t
+2
+82
+w"
+else
+    echo "\
+n
 p
 1
 
@@ -62,7 +84,8 @@ p
 3
 
 
-w" | fdisk $HD &> /dev/null
+w"
+fi | fdisk $HD &> /dev/null
 
 dmsetup remove_all
 partprobe $HD
@@ -110,7 +133,9 @@ echo "Comenzando la instalación de la imagen.
 La operación puede durar aproximadamente 5 minutos."
 
 fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=0,dest="$HD"1 &> /dev/null
-fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=1,dest="$HD"3 &> /dev/null
+if [ "$HD_ROOT" != 'FILL' ]; then
+    fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=1,dest="$HD"3 &> /dev/null
+fi
 umount $IMAGE_DIR &> /dev/null
 
 if [ $NFSMOUNT = 'started' ]; then
