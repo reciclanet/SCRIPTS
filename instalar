@@ -131,7 +131,7 @@ echo "Instalando y configurando GRUB..."
 chroot /tmp/root update-grub2 &> /dev/null
 chroot /tmp/root grub-install $HD &> /dev/null
 
-echo "Generando UUID $HD2 (swap)..."
+echo "Generando UUID ${HD}2 (swap)..."
 OLD_SWAP_UUID=`cat /tmp/root/etc/fstab | grep swap | grep 'UUID' | cut -d "=" -f 2 | cut -d " " -f 1`
 sed -i "s/$OLD_SWAP_UUID/$NEW_SWAP_UUID/g" /tmp/root/etc/fstab
 
