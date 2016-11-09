@@ -89,7 +89,7 @@ case "$REMOTE_TYPE" in
     (NFS) mount -t nfs -o nolock "$SERVER:$REMOTE_MP" "$LOCAL_MP" &> /dev/null \
                 && REMOTE_MOUNTED=yes
           ;;
-    (CIFS) mount -t cifs -o ro,guest "//$SERVER/$REMOTE_MP" "$LOCAL_MP" &> /dev/null \
+    (CIFS) mount -t cifs -o ro,guest "//$SERVER$REMOTE_MP" "$LOCAL_MP" &> /dev/null \
                  && REMOTE_MOUNTED=yes
            ;;
     (*) REMOTE_MOUNTED=no  # local
