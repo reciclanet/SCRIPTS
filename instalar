@@ -99,7 +99,6 @@ sleep 5
 echo "Formateando la partición de swap..."
 NEW_SWAP_UUID=$(mkswap "$HD"2 2> /dev/null | get_uuid)
 
-swapon "$HD"2 &> /dev/null
 echo "Preparación del disco duro finalizada"
 }
 
