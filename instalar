@@ -99,6 +99,7 @@ partprobe $HD
 sleep 5
 
 echo "Formateando la partición de swap..."
+swapoff -a
 NEW_SWAP_UUID=$(mkswap "$HD"2 2> /dev/null | get_uuid)
 
 echo "Preparación del disco duro finalizada"
