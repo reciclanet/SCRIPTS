@@ -40,6 +40,8 @@ Pulse ENTER para comenzar la instalación."
 
 function hd_format(){
 echo "* Preparación del disco duro *"
+echo "Inhabilitando swap..."
+swapoff -a
 echo "Limpiando MBR..."
 dd if=/dev/zero of=$HD count=1 bs=512 &> /dev/null
 
