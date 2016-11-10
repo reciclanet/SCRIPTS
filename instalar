@@ -29,7 +29,7 @@ function pause(){
 
 function init_msg(){
 START_TIME=`date +%s`
-test "$CONFIRM" = yes && pause "** INSTALACIÓN AUTOMÁTICA DE SSOO **
+test "$CONFIRM" = no || pause "** INSTALACIÓN AUTOMÁTICA DE SSOO **
 EL CONTENIDO DEL DISCO DURO SE BORRARÁ POR COMPLETO.
 
 Pulse CONTROL+C para detener la instalación.
