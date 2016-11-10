@@ -10,6 +10,7 @@
 
 #A copy of the GNU General Public License is available as /usr/share/common-licenses/GPL in the Debian GNU/Linux distribution or on the World Wide Web at the GNU website You can also obtain it by writing to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
 
+ASK=${ASK:-yes}  # "yes" o "no"
 SERVER=10.10.20.3
 HD='/dev/sda'
 HD_SWAP=4096
@@ -28,7 +29,7 @@ function pause(){
 
 function init_msg(){
 START_TIME=`date +%s`
-pause "** INSTALACIÓN AUTOMÁTICA DE SSOO **
+test "$ASK" = yes && pause "** INSTALACIÓN AUTOMÁTICA DE SSOO **
 EL CONTENIDO DEL DISCO DURO SE BORRARÁ POR COMPLETO.
 
 Pulse CONTROL+C para detener la instalación.
