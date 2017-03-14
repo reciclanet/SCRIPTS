@@ -12,8 +12,8 @@
 
 SERVER=10.10.20.3
 HD='/dev/sda'
-HD_SWAP=4096
-HD_ROOT=20480
+HD_SWAP=${HD_SWAP:-4096}  # MiB o "AUTO"
+HD_ROOT=${HD_ROOT:-20480}  # MiB o "FILL"
 LOCAL_MP='/tmp/pxe'
 REMOTE_MP='/pxe'
 IMAGE_DIR="$LOCAL_MP/img"
@@ -23,6 +23,10 @@ END_TIME=0
 
 function pause(){
   read -p "$*"
+}
+
+function get_uuid(){
+perl -ne 'print if s/.*?((?:[[:xdigit:]]+-){4}[[:xdigit:]]+).*/\1/'
 }
 
 function init_msg(){
@@ -36,11 +40,40 @@ Pulse ENTER para comenzar la instalación."
 
 function hd_format(){
 echo "* Preparación del disco duro *"
+echo "Inhabilitando swap..."
+swapoff -a
 echo "Limpiando MBR..."
 dd if=/dev/zero of=$HD count=1 bs=512 &> /dev/null
 
 echo 'Creando las nuevas particiones...'
-echo "n
+
+if [ "$HD_SWAP" = 'AUTO' ]; then
+    local mem_kb=$(sed -rn 's/^MemTotal:\s*([0-9]+) kB/\1/p' /proc/meminfo)
+    HD_SWAP=$((mem_kb / 1024 * 3 / 2))  # RAM * 1.5 (MiB)
+fi
+
+if [ "$HD_ROOT" = 'FILL' ]; then
+    local hd_size_kb=$(sed -ne "s/.* \([0-9]*\) $(basename "$HD")$/\1/p" /proc/partitions)
+    local hd_size_sectors=$((hd_size_kb * 2))
+    local swap_first_sector=$((hd_size_sectors - (HD_SWAP * 1024 * 2)))
+    echo "\
+n
+p
+2
+$swap_first_sector
+
+n
+p
+1
+
+
+t
+2
+82
+w"
+else
+    echo "\
+n
 p
 1
 
@@ -50,23 +83,25 @@ p
 2
 
 +"$HD_SWAP"M
+t
+2
+82
 n
 p
 3
 
 
-w" | fdisk $HD &> /dev/null
+w"
+fi | fdisk $HD &> /dev/null
 
 dmsetup remove_all
 partprobe $HD
 sleep 5
 
-echo "Formateando las nuevas particiones..."
-mkfs -t ext4 "$HD"1 &> /dev/null
-NEW_SWAP_UUID=`mkswap /dev/sda2 | grep 'UUID' | cut -d "=" -f 2`
-mkfs -t ext4 "$HD"3 &> /dev/null
+echo "Formateando la partición de swap..."
+swapoff -a
+NEW_SWAP_UUID=$(mkswap "$HD"2 2> /dev/null | get_uuid)
 
-swapon "$HD"2 &> /dev/null
 echo "Preparación del disco duro finalizada"
 }
 
@@ -105,7 +140,9 @@ echo "Comenzando la instalación de la imagen.
 La operación puede durar aproximadamente 5 minutos."
 
 fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=0,dest="$HD"1 &> /dev/null
-fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=1,dest="$HD"3 &> /dev/null
+if [ "$HD_ROOT" != 'FILL' ]; then
+    fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=1,dest="$HD"3 &> /dev/null
+fi
 umount $IMAGE_DIR &> /dev/null
 
 if [ $NFSMOUNT = 'started' ]; then
@@ -128,8 +165,8 @@ echo "Instalando y configurando GRUB..."
 chroot /tmp/root update-grub2 &> /dev/null
 chroot /tmp/root grub-install $HD &> /dev/null
 
-echo "Generando UUID $HD2 (swap)..."
-OLD_SWAP_UUID=`cat /tmp/root/etc/fstab | grep swap | grep 'UUID' | cut -d "=" -f 2 | cut -d " " -f 1`
+echo "Generando UUID ${HD}2 (swap)..."
+OLD_SWAP_UUID=$(grep swap /tmp/root/etc/fstab | get_uuid)
 sed -i "s/$OLD_SWAP_UUID/$NEW_SWAP_UUID/g" /tmp/root/etc/fstab
 
 echo "Desmontando $HD y sus particiones"
