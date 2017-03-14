@@ -117,25 +117,21 @@ fi
 function grub_install(){
 echo "* Instalación de GRUB *"
 
-echo "Montando $HD y sus particiones..."
+echo "Montando ${HD}1..."
 mkdir /tmp/root
 mount "$HD"1 /tmp/root
-mount -t proc proc /tmp/root/proc
-mount -t sysfs sys /tmp/root/sys
-mount -o bind /dev /tmp/root/dev
 
-echo "Instalando y configurando GRUB..."
-chroot /tmp/root update-grub2 &> /dev/null
-chroot /tmp/root grub-install $HD &> /dev/null
+echo "Instalando GRUB..."
+grub-install \
+     --directory=/tmp/root/usr/lib/grub/i386-pc \
+     --root-directory=/tmp/root \
+     $HD &> /dev/null
 
 echo "Generando UUID $HD2 (swap)..."
 OLD_SWAP_UUID=`cat /tmp/root/etc/fstab | grep swap | grep 'UUID' | cut -d "=" -f 2 | cut -d " " -f 1`
 sed -i "s/$OLD_SWAP_UUID/$NEW_SWAP_UUID/g" /tmp/root/etc/fstab
 
-echo "Desmontando $HD y sus particiones"
-umount /tmp/root/dev
-umount /tmp/root/sys
-umount /tmp/root/proc
+echo "Desmontando ${HD}1"
 umount /tmp/root
 rmdir /tmp/root
 }
