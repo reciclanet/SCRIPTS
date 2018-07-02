@@ -1,14 +1,13 @@
 #!/bin/bash
+# (c) 2000-2018 Reciclanet Asociación Educativa-Reciclanet Hezkuntza Elkartea www.reciclanet.org
+# Copyright
+# Licencia GPL
 
-#(c) 2000-2015 Reciclanet Asociación Educativa-Reciclanet Hezkuntza Elkartea www.reciclanet.org
-#Copyright
-#Licencia GPL
+# This manual is free software; you may redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2, or (at your option) any later version.
 
-#This manual is free software; you may redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2, or (at your option) any later version.
+# This is distributed in the hope that it will be useful, but without any warranty; without even the implied warranty of merchantability or fitness for a particular purpose. See the GNU General Public License for more details.
 
-#This is distributed in the hope that it will be useful, but without any warranty; without even the implied warranty of merchantability or fitness for a particular purpose. See the GNU General Public License for more details.
-
-#A copy of the GNU General Public License is available as /usr/share/common-licenses/GPL in the Debian GNU/Linux distribution or on the World Wide Web at the GNU website You can also obtain it by writing to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+# A copy of the GNU General Public License is available as /usr/share/common-licenses/GPL in the Debian GNU/Linux distribution or on the World Wide Web at the GNU website You can also obtain it by writing to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
 
 SERVER=${SERVER:-10.10.20.3}
 HD=${HD:-'/dev/sda'}
@@ -18,7 +17,6 @@ LOCAL_MP=${LOCAL_MP:-'/tmp/pxe'}
 REMOTE_MP=${REMOTE_MP:-'/pxe'}
 IMAGE_DIR="$LOCAL_MP/${IMAGE_DIR:-img}"
 
-NFSMOUNT=`/etc/init.d/nfsmount status | awk -F: '{print $2}' | sed 's/ //g'`
 START_TIME=0
 END_TIME=0
 
@@ -75,11 +73,6 @@ function img_install(){
 echo "* Instalación de la imagen *"
 echo "Iniciando instalación de imagen"
 
-if [ $NFSMOUNT != 'started' ]; then
-    echo "Servicio NFS desactivado, activando..."
-    /etc/init.d/nfsmount start &> /dev/null
-fi
-
 mkdir -p $LOCAL_MP
 mount -o nolock $SERVER:$REMOTE_MP $LOCAL_MP &> /dev/null
 cd $IMAGE_DIR
@@ -109,10 +102,6 @@ fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=0,dest="$HD"1 &> /dev/null
 fsarchiver restfs $IMAGE_DIR/${IMAGES[$SELECTED]} id=1,dest="$HD"3 &> /dev/null
 umount $IMAGE_DIR &> /dev/null
 
-if [ $NFSMOUNT = 'started' ]; then
-    echo "Servicio NFS activado, desactivando..."
-    /etc/init.d/nfsmount start &> /dev/null
-fi
 }
 
 function grub_install(){
@@ -159,3 +148,6 @@ grub_install
 echo
 end_msg
 echo
+
+exit 0
+

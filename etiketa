@@ -1,17 +1,14 @@
 #!/bin/bash
+# (c) 2000-2018 Reciclanet Asociación Educativa-Reciclanet Hezkuntza Elkartea www.reciclanet.org
+# Copyright
+# Licencia GPL
 
-#(c) 2000-2015 Reciclanet Asociación Educativa-Reciclanet Hezkuntza Elkartea www.reciclanet.org
-#Copyright
-#Licencia GPL
+# This manual is free software; you may redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2, or (at your option) any later version.
 
-#This manual is free software; you may redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2, or (at your option) any later version.
+# This is distributed in the hope that it will be useful, but without any warranty; without even the implied warranty of merchantability or fitness for a particular purpose. See the GNU General Public License for more details.
 
-#This is distributed in the hope that it will be useful, but without any warranty; without even the implied warranty of merchantability or fitness for a particular purpose. See the GNU General Public License for more details.
+# A copy of the GNU General Public License is available as /usr/share/common-licenses/GPL in the Debian GNU/Linux distribution or on the World Wide Web at the GNU website You can also obtain it by writing to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
 
-#A copy of the GNU General Public License is available as /usr/share/common-licenses/GPL in the Debian GNU/Linux distribution or on the World Wide Web at the GNU website You can also obtain it by writing to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
-
-
-#para ejecutar script desde el directorio donde está: ./script_etiketa.sh
 #información equipo: CPU-RAM-DISK-ERRORES-HORAS-VELOCIDAD
 echo ""
 #Anotar datos del equipo y Mhz de la CPU
@@ -68,5 +65,5 @@ echo ""
 echo COPIAR ESTA INFORMACION A LA ETIKETA DEL EQUIPO 
 echo ""
 
-
+exit 0
 
