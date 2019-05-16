@@ -48,6 +48,8 @@ HD_HOURS=$(smartctl -a /dev/sda | grep -E '9 Power_On_Hours|9 Power_On_Seconds|9
 echo -e "Horas:\t\t\t$HD_HOURS"
 HD_REALLOC=$(smartctl -a /dev/sda | grep '5 Reallocated_Sector_Ct' | awk -F' - ' '{print $2}' | sed 's/ //g')
 echo -e "Sectores reubicados:\t$HD_REALLOC"
+HD_PENDING_SECTORS=`smartctl -a  /dev/sda | grep '197 Current_Pending_Sector' | awk -F'-' '{print $2}' | sed 's/ //g'`
+echo -e "Sectores pendientes:\t$HD_PENDING_SECTORS"
 HD_ERRORS=$(smartctl -a /dev/sda | grep 'Error Count' | awk -F' ' '{print $4}')
 if [[ $HD_ERRORS = "" ]]; then
     HD_ERRORS=0
