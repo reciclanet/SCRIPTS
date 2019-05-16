@@ -9,8 +9,8 @@
 
 # A copy of the GNU General Public License is available as /usr/share/common-licenses/GPL in the Debian GNU/Linux distribution or on the World Wide Web at the GNU website You can also obtain it by writing to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
 
-# Información equipo: CPU-RAM-DISK-ERRORES-HORAS-VELOCIDAD
-echo "" # Anotar datos del equipo y Mhz de la CPU
+# Computer information: CPU-RAM-DISK-ERRORS-HOURS-SPEED
+echo "" # Write down the computer data and the Mhz of the CPU
 echo ""
 MANUFACTURER=`dmidecode -s system-manufacturer`
 echo -e "Fabricante:\t$MANUFACTURER"
@@ -18,11 +18,11 @@ MODELO=`dmidecode -s system-product-name`
 echo -e "Modelo:\t\t$MODELO"
 NUMERO_SERIE=`dmidecode -s system-serial-number`
 echo -e "Numero_serie:\t$NUMERO_SERIE"
-# Anotar modelo y Mhz de la CPU
+# Write down the model and the Mhz of the CPU
 echo ""
 PROCESADOR=`cat /proc/cpuinfo | grep -m 1 "model name" | awk -F: '{print $2}'`
 echo -e "Procesador:\t$PROCESADOR"
-# Arquitectura procesador
+# Processor architecture
 ARCH=`grep -o -w 'lm' /proc/cpuinfo | sort -u`
 if [[ $ARCH = "lm" ]]; then
   ARCH=64-bits
@@ -32,17 +32,17 @@ fi
 echo -e "Arquitectura:\t$ARCH"
 BOGOMIPS=`cat /proc/cpuinfo | grep -m 1 "bogomips" | awk -F' ' '{print $3}'`
 echo -e "Bogomips:\t$BOGOMIPS"
-# Memoria del equipo en MB
+# Computer memory in MB
 echo ""
 MEM=`free -m | grep 'Mem:' | awk -F' ' '{print $2}' | sed 's/ //g'`
 echo -e "Memoria total:\t$MEM MB"
-# Capacidad del disco y particiones
+# Disk capacity and partitions
 echo ""
 HD_SIZE=`fdisk -l | grep -E "(GB|GiB|MB)"`
 echo -e "$HD_SIZE"
-# Errores y horas y ver sectores realocados
+# Errors, hours, and realocated sectors
 echo ""
-# Activar el smartctl y que no se vea en pantalla
+# Start smartctl and make it not visible on the screen
 A=`smartctl -s on /dev/sda`                                                                                                        
 HD_HOURS=`smartctl -a /dev/sda | grep -E '9 Power_On_Hours|9 Power_On_Seconds|9 Power_On_Minutes' | awk -F' - ' '{print $2}' | sed 's/ //g'`
 echo -e "Horas:\t\t\t$HD_HOURS"
@@ -55,12 +55,13 @@ fi
 echo -e "Errores:\t\t$HD_ERRORS"
 HD_TEMPERATURE=`smartctl -a /dev/sda | grep '194 Temperature_Celsius' | awk -F' - ' '{print $2}' | sed 's/ //g'`
 echo -e "Temperatura:\t\t$HD_TEMPERATURE"
-# Velocidad de lectura del disco
+# Disk read speed
 echo ""
 for i in `seq 1 2`; do
         echo -e "\tPrueba $i:\t`hdparm -t /dev/sda | grep 'MB/s' | awk -F= '{print $2}' | sed 's/ //g'`"
  done
 
+# Real battery life
 echo ""
 # Check if it is a Laptop
 case $(dmidecode --string chassis-type) in
