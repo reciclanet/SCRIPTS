@@ -12,53 +12,53 @@
 # Computer information: CPU-RAM-DISK-ERRORS-HOURS-SPEED
 echo "" # Write down the computer data and the Mhz of the CPU
 echo ""
-MANUFACTURER=`dmidecode -s system-manufacturer`
+MANUFACTURER=$(dmidecode -s system-manufacturer)
 echo -e "Fabricante:\t$MANUFACTURER"
-MODELO=`dmidecode -s system-product-name`
+MODELO=$(dmidecode -s system-product-name)
 echo -e "Modelo:\t\t$MODELO"
-NUMERO_SERIE=`dmidecode -s system-serial-number`
+NUMERO_SERIE=$(dmidecode -s system-serial-number)
 echo -e "Numero_serie:\t$NUMERO_SERIE"
 # Write down the model and the Mhz of the CPU
 echo ""
-PROCESADOR=`cat /proc/cpuinfo | grep -m 1 "model name" | awk -F: '{print $2}'`
+PROCESADOR=$(cat /proc/cpuinfo | grep -m 1 "model name" | awk -F: '{print $2}')
 echo -e "Procesador:\t$PROCESADOR"
 # Processor architecture
-ARCH=`grep -o -w 'lm' /proc/cpuinfo | sort -u`
+ARCH=$(grep -o -w 'lm' /proc/cpuinfo | sort -u)
 if [[ $ARCH = "lm" ]]; then
   ARCH=64-bits
 else
   ARCH=32-bits
 fi
 echo -e "Arquitectura:\t$ARCH"
-BOGOMIPS=`cat /proc/cpuinfo | grep -m 1 "bogomips" | awk -F' ' '{print $3}'`
+BOGOMIPS=$(cat /proc/cpuinfo | grep -m 1 "bogomips" | awk -F' ' '{print $3}')
 echo -e "Bogomips:\t$BOGOMIPS"
 # Computer memory in MB
 echo ""
-MEM=`free -m | grep 'Mem:' | awk -F' ' '{print $2}' | sed 's/ //g'`
+MEM=$(free -m | grep 'Mem:' | awk -F' ' '{print $2}' | sed 's/ //g')
 echo -e "Memoria total:\t$MEM MB"
 # Disk capacity and partitions
 echo ""
-HD_SIZE=`fdisk -l | grep -E "(GB|GiB|MB)"`
+HD_SIZE=$(fdisk -l | grep -E "(GB|GiB|MB)")
 echo -e "$HD_SIZE"
 # Errors, hours, and realocated sectors
 echo ""
 # Start smartctl and make it not visible on the screen
-A=`smartctl -s on /dev/sda`                                                                                                        
-HD_HOURS=`smartctl -a /dev/sda | grep -E '9 Power_On_Hours|9 Power_On_Seconds|9 Power_On_Minutes' | awk -F' - ' '{print $2}' | sed 's/ //g'`
+A=$(smartctl -s on /dev/sda)                                                                                  
+HD_HOURS=$(smartctl -a /dev/sda | grep -E '9 Power_On_Hours|9 Power_On_Seconds|9 Power_On_Minutes' | awk -F' - ' '{print $2}' | sed 's/ //g')
 echo -e "Horas:\t\t\t$HD_HOURS"
-HD_REALLOC=`smartctl -a /dev/sda | grep '5 Reallocated_Sector_Ct' | awk -F' - ' '{print $2}' | sed 's/ //g'`
+HD_REALLOC=$(smartctl -a /dev/sda | grep '5 Reallocated_Sector_Ct' | awk -F' - ' '{print $2}' | sed 's/ //g')
 echo -e "Sectores reubicados:\t$HD_REALLOC"
-HD_ERRORS=`smartctl -a /dev/sda | grep 'Error Count' | awk -F' ' '{print $4}'`
+HD_ERRORS=$(smartctl -a /dev/sda | grep 'Error Count' | awk -F' ' '{print $4}')
 if [[ $HD_ERRORS = "" ]]; then
     HD_ERRORS=0
 fi
 echo -e "Errores:\t\t$HD_ERRORS"
-HD_TEMPERATURE=`smartctl -a /dev/sda | grep '194 Temperature_Celsius' | awk -F' - ' '{print $2}' | sed 's/ //g'`
+HD_TEMPERATURE=$(smartctl -a /dev/sda | grep '194 Temperature_Celsius' | awk -F' - ' '{print $2}' | sed 's/ //g')
 echo -e "Temperatura:\t\t$HD_TEMPERATURE"
 # Disk read speed
 echo ""
-for i in `seq 1 2`; do
-        echo -e "\tPrueba $i:\t`hdparm -t /dev/sda | grep 'MB/s' | awk -F= '{print $2}' | sed 's/ //g'`"
+for i in $(seq 1 2); do
+        echo -e "\tPrueba $i:\t$(hdparm -t /dev/sda | grep 'MB/s' | awk -F= '{print $2}' | sed 's/ //g')"
  done
 
 # Real battery life
