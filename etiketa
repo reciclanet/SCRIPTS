@@ -57,7 +57,7 @@ echo -e "$HD_SIZE"
 # Hard Disks details: hours, reallocatd sectors, pendings sectors, errors, and temperature
 echo ""
 # Enable smartctl and make it not visible on the screen
-A=$(smartctl -s on /dev/sda)
+smartctl -s on /dev/sda >/dev/null 2>&1
 HD_HOURS=$(smartctl -a /dev/sda | grep -E '9 Power_On_Hours|9 Power_On_Seconds|9 Power_On_Minutes' | awk -F' - ' '{print $2}' | sed 's/ //g')
 echo -e "Horas:\t\t\t$HD_HOURS"
 
