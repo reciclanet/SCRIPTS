@@ -21,17 +21,17 @@ echo ""
 MANUFACTURER=$(dmidecode -s system-manufacturer)
 echo -e "Fabricante:\t$MANUFACTURER"
 
-MODELO=$(dmidecode -s system-product-name)
-echo -e "Modelo:\t\t$MODELO"
+MODEL=$(dmidecode -s system-product-name)
+echo -e "Modelo:\t\t$MODEL"
 
-NUMERO_SERIE=$(dmidecode -s system-serial-number)
-echo -e "Numero_serie:\t$NUMERO_SERIE"
+SERIAL_NUMBER=$(dmidecode -s system-serial-number)
+echo -e "Numero_serie:\t$SERIAL_NUMBER"
 
 
 # Processor characteristics: Model, Architecture, BogoMips
 echo ""
-PROCESADOR=$(cat /proc/cpuinfo | grep -m 1 "model name" | awk -F: '{print $2}')
-echo -e "Procesador:\t$PROCESADOR"
+PROCESSOR=$(cat /proc/cpuinfo | grep -m 1 "model name" | awk -F: '{print $2}')
+echo -e "Procesador:\t$PROCESSOR"
 
 ARCH=$(grep -o -w 'lm' /proc/cpuinfo | sort -u)
 if [[ $ARCH = "lm" ]]; then
@@ -93,9 +93,9 @@ echo ""
 case $(dmidecode --string chassis-type) in
 	Laptop | Notebook | Portable | "Sub Notebook")
 		# Depending on the laptop the value may vary (BAT0, BAT1...) and (charge_full, energy_full)
-		BATERIA=$(expr \( $(cat /sys/class/power_supply/BAT*/*_full 2>/dev/null) \* 100 \) / $(cat /sys/class/power_supply/BAT*/*_full_design 2>/dev/null) 2>/dev/null )
+		BATTERY=$(expr \( $(cat /sys/class/power_supply/BAT*/*_full 2>/dev/null) \* 100 \) / $(cat /sys/class/power_supply/BAT*/*_full_design 2>/dev/null) 2>/dev/null )
 		if [[ $? -eq 0 ]]; then
-			echo -e "Batería:\t\t$BATERIA%"
+			echo -e "Batería:\t\t$BATTERY%"
 		else
 			echo -e "Batería:\t\tPuede que no tenga batería o que este inutilizable"
 		fi
