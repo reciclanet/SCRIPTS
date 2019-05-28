@@ -25,7 +25,7 @@ MODEL=$(dmidecode -s system-product-name)
 echo -e "Modelo:\t\t$MODEL"
 
 SERIAL_NUMBER=$(dmidecode -s system-serial-number)
-echo -e "Numero_serie:\t$SERIAL_NUMBER"
+echo -e "Numero serie:\t$SERIAL_NUMBER"
 
 
 # Processor characteristics: Model, Architecture, BogoMips
